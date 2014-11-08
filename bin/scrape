@@ -8,6 +8,9 @@ require 'mail'
 # 1 SETUP
 ###############################################################################
 
+THRESHOLD = 5
+HOST      = 'https://ntst.umd.edu/soc/search?'
+
 Mail.defaults do
   delivery_method :smtp, {
       :address => 'smtp.sendgrid.net',
@@ -20,14 +23,9 @@ Mail.defaults do
   }
 end
 
-THRESHOLD = 14
-HOST      = 'https://ntst.umd.edu/soc/search?'
-
 ###############################################################################
 # SCRAPING
 ###############################################################################
-
-
 
 course_id = 'cmsc435'
 section_id = '0101'
@@ -59,8 +57,6 @@ open_seat_count = page.css('.open-seats-count')[0].text.to_i
 # SEND EMAIL
 ###############################################################################
 
-
-
 if open_seat_count <= THRESHOLD
 
   mail = Mail.new do
@@ -72,6 +68,11 @@ if open_seat_count <= THRESHOLD
   end
 
   mail.deliver
+  puts 'Email Sent'
+
+else
+
+  puts 'No Email Sent'
 
 end
 
