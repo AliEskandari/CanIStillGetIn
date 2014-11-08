@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
 
-require "open-uri"
+require 'open-uri'
 require 'nokogiri'
 require 'mail'
 
-# MAIL SETUP
+###############################################################################
+# 1 SETUP
+###############################################################################
 
 Mail.defaults do
   delivery_method :smtp, {
@@ -18,40 +20,55 @@ Mail.defaults do
   }
 end
 
-host = 'https://ntst.umd.edu/soc/search?'
+THRESHOLD = 14
+HOST      = 'https://ntst.umd.edu/soc/search?'
+
+###############################################################################
+# SCRAPING
+###############################################################################
+
+
+
 course_id = 'cmsc435'
 section_id = '0101'
-term_id = '201501'
+year = '2015'
+semester = '01'
+term_id = year+semester
 open_sections_only = 'on'
 course_level_filter = 'ALL'
 class_start_time = ''
 class_days = 'on'
 teaching_center = 'ALL'
 
-page = Nokogiri::HTML(open(host +
-                               'courseId=' + course_id +
-                               '&sectionId=' + section_id +
-                               '&termId=' + term_id +
-                               '&_openSectionsOnly=' + open_sections_only +
-                               '&courseLevelFilter=' + course_level_filter +
-                               '&classStartTime=' + class_start_time +
-                               '&_classDays=' + class_days +
-                               '&teachingCenter=' + teaching_center))
+url =
+    HOST +
+    'courseId=' + course_id +
+    '&sectionId=' + section_id +
+    '&termId=' + term_id +
+    '&_openSectionsOnly=' + open_sections_only +
+    '&courseLevelFilter=' + course_level_filter +
+    '&classStartTime=' + class_start_time +
+    '&_classDays=' + class_days +
+    '&teachingCenter=' + teaching_center
 
-puts page.css('.open-seats-count')[0].text
-
-threshold = 14
+page = Nokogiri::HTML(open(url))
 
 open_seat_count = page.css('.open-seats-count')[0].text.to_i
 
+###############################################################################
+# SEND EMAIL
+###############################################################################
 
-if open_seat_count < threshold
+
+
+if open_seat_count <= THRESHOLD
 
   mail = Mail.new do
-    from     'alieskandari3@gmail.com'
+    from     'hello@canistillgetin.com'
     to       'alieskandari3@gmail.com'
-    subject  'Here is the image you wanted'
-    body     'hello'
+    subject  "Only #{open_seat_count} open seats available in #{course_id.upcase!}"
+    body     "There are #{open_seat_count} open seats available for #{course_id} section #{section_id} Spring #{year}." +
+                 "\n\n" + 'Drop/Add: http://testudo.umd.edu/dropadd/index.html' + "\n\n" + "SOC: #{url}"
   end
 
   mail.deliver
