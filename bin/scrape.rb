@@ -1,9 +1,6 @@
 require 'open-uri'
 require 'nokogiri'
 require 'mail'
-require 'sinatra'
-
-
 
 
 host = 'https://ntst.umd.edu/soc/search?'
@@ -15,10 +12,6 @@ course_level_filter = 'ALL'
 class_start_time = ''
 class_days = 'on'
 teaching_center = 'ALL'
-
-get '/' do
-  "Hello World"
-end
 
 page = Nokogiri::HTML(open(host +
                                'courseId=' + course_id +
@@ -32,7 +25,7 @@ page = Nokogiri::HTML(open(host +
 
 puts page.css('.open-seats-count')[0].text
 
-threshold = 14
+threshold = 5
 
 open_seat_count = page.css('.open-seats-count')[0].text.to_i
 
