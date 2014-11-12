@@ -8,8 +8,10 @@ require 'mail'
 # 1 Setup
 ###############################################################################
 
-THRESHOLD = 3
-HOST      = 'https://ntst.umd.edu/soc/search?'
+THRESHOLD       = 3
+HOST            = 'https://ntst.umd.edu/soc/search?'
+STATUS_FILE     = File.open('status.txt', 'r+')
+WAS_SENT        = STATUS_FILE.gets.to_b
 
 Mail.defaults do
   delivery_method :smtp, {
@@ -27,16 +29,16 @@ end
 # 2 Scrape
 ###############################################################################
 
-course_id = 'cmsc435'
-section_id = '0101'
-year = '2015'
-semester = '01'
-term_id = year+semester
-open_sections_only = 'on'
-course_level_filter = 'ALL'
-class_start_time = ''
-class_days = 'on'
-teaching_center = 'ALL'
+course_id             = 'cmsc435'
+section_id            = '0101'
+year                  = '2015'
+semester              = '01'
+term_id               = year + semester
+open_sections_only    = 'on'
+course_level_filter   = 'ALL'
+class_start_time      = ''
+class_days            = 'on'
+teaching_center       = 'ALL'
 
 url =
     HOST +
@@ -57,7 +59,7 @@ open_seat_count = page.css('.open-seats-count')[0].text.to_i
 # 3 Notify
 ###############################################################################
 
-if open_seat_count <= THRESHOLD
+if open_seat_count <= THRESHOLD && !WAS_SENT
 
   mail = Mail.new do
     from     'hello@canistillgetin.com'
@@ -68,11 +70,11 @@ if open_seat_count <= THRESHOLD
   end
 
   mail.deliver
-  puts 'Email Sent'
+  STATUS_FILE.truncate(0).write('yes')
 
 else
-
-  puts 'No Email Sent'
+  
+  STATUS_FILE.truncate(0).write('no')
 
 end
 
