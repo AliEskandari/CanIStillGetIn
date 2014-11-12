@@ -8,7 +8,7 @@ require 'mail'
 # 1 Setup
 ###############################################################################
 
-THRESHOLD       = 3
+THRESHOLD       = 2
 HOST            = 'https://ntst.umd.edu/soc/search?'
 STATUS_FILE     = File.open('status.txt', 'r+')
 WAS_SENT        = STATUS_FILE.gets.to_b
@@ -70,6 +70,7 @@ if open_seat_count <= THRESHOLD && !WAS_SENT
   end
 
   mail.deliver
+
   STATUS_FILE.truncate(0).write('yes')
 
 else
